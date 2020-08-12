@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="b.o.a">
+
+	<select id="list" resultType="BoardVO">
+	<!-- 
+		select * from board natural join category natural join (select gname, to_char(price, 'FM999,999') as price from goods)
+	 -->
+		select * from board natural join category natural join goods natural join attach order by bno desc
+	</select>
+	
+	<select id="getBno" resultType="Integer">
+		select max(bno) from board
+	</select>
+
+	<insert id="insert">
+		insert into board (bno, title, cno, gno) 
+		values (#{bno}, #{title}, #{cno}, #{gno})
+	</insert>
+	
+	<insert id="addAttach">
+		insert into attach (uno, fullName, bno)
+		values (#{uno}, #{fullName}, #{bno})
+	</insert>
+	
+	<insert id="fullNameNull">
+		insert into attach (uno, bno)
+		values (#{uno}, #{bno})
+	</insert>
+	
+
+	<select id="getId" resultType="Integer">
+	<!-- max(id)가 null이 아니면 max(id)+1, null이면 1 -->
+		select NVL2(max(uno), max(uno)+1, 1) from attach
+	</select>
+	
+	<select id="getAttach" resultType="string">
+		select fullName from attach
+		where bno = #{bno} order by uno asc
+	</select>
+	
+	<select id="getCateName" resultType="String">
+		select cname from board natural join category
+		where cno = #{cno}
+	</select>
+	
+	<select id="getAttData" resultType="AttachDTO">
+		select * from attach where bno = #{bno}
+	</select>
+	
+	<delete id="delAttachFileName">
+		delete from attach where fullName = #{fullName}
+	</delete>
+	
+	<delete id="delByBno">
+		delete from attach where bno = #{bno}
+	</delete>
+	
+	<select id="read" resultType="BoardVO">
+		select * from board where bno = #{bno}
+	</select>
+
+	
+	<select id="updateui" resultType="BoardVO">
+		select * from board natural join category natural join goods where bno = #{bno}
+	</select>
+	
+	<update id="update">
+		update board set title = #{title}, cno = #{cno}, 
+		gno = #{gno}
+		where bno = #{bno}
+	</update>
+	
+	<delete id="delete">
+		delete from board where bno = #{bno}
+	</delete>
+	
+	<select id="getAmount" resultType="Integer">
+		select count(bno) from board
+	</select>
+	
+	<!-- 검색 sql 1번째 방법 -->
+	<select id="searchlist2" resultType="BoardVO">
+	<!-- 권장 -->
+	<!-- 
+		select * from board where column like '%'||#{keyword}||'%'
+	 -->
+	<!-- 비권장 : 보안에 취약 -->
+	<!-- 
+		select * from board where ${searchType} like '%'||#{keyword}||'%'
+	 -->
+	<!-- 대소문자 다 검색되도록 -->
+		select * from board where lower(${searchType}) like '%'||lower(#{keyword})||'%'
+	</select>
+
+	<!-- 검색 sql 두번째 방법 -->	
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 'writer'.toString()">
+				where lower(writer) like '%'||lower(#{keyword})||'%'
+			</if>
+			<if test="searchType == 'title'.toString()">
+				where lower(title) like '%'||lower(#{keyword})||'%'
+			</if>
+			<if test="searchType == 'content'.toString()">
+				where lower(content) like '%'||lower(#{keyword})||'%'
+			</if>
+		</if>
+	</sql>
+	
+	<select id="searchlist" resultType="BoardVO">
+		select * from board <include refid="search"></include>
+	</select>
+	
+	<!-- 이전 활용 방식 -->
+	<select id="test" resultType="BoardVO">
+		<![CDATA[
+		select * from (
+		select rownum rnum, bno, title, content, writer, viewCnt from
+		(select * from board ]]>
+		
+		<include refid="search"></include>
+		<![CDATA[
+		order by bno desc)
+		) where rnum between #{startNum} and #{endNum}
+		]]>
+	</select>
+	
+	<!-- searchread -->
+	<select id="searchread" resultType="BoardVO">
+		select * from board where bno = #{bno}
+	</select>
+
+		<!-- 댓글수 -->
+	<update id="updateRepCnt">
+		update board set repcnt = repcnt + #{amount} where bno = #{bno}
+	</update>
+	
+
+	
+</mapper>
+

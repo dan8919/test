@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="c.a.t">
+
+	<select id="getCateData" resultType="CategoryDTO">
+		select * from category where cno = #{cno}
+	</select>
+	
+	<select id="getCateList" resultType="CategoryDTO">
+		select * from category where cno = #{cno}
+	</select>
+	
+	<select id="selectCateList" resultType="CategoryDTO">
+		select * from category
+	</select>
+
+	<select id="cateNjoin" resultType="CategoryDTO">
+		select * from board natural join category where cno = #{cno}
+	</select>
+	
+	<select id="getCateName" resultType="CategoryDTO">
+		select cname from category where cno = #{cno}
+	</select>
+
+	<select id="catePage" resultType="BoardVO">
+		select * from board natural join category natural join goods natural join attach
+		where cno = #{cno}
+		order by bno desc
+	</select>
+	
+	<select id="getAmount" resultType="Integer">
+		select count(bno) from board
+	</select>
+	
+	
+</mapper>
+

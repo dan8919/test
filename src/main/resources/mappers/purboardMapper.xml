@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="p.u.r">
+
+	<select id="getPno" resultType="Integer">
+		select max(pno) from purchase_board
+	</select>
+
+	<insert id="insertpdto">
+		insert into purchase_board (pno, id, cno, gno, deliveryCode)
+		values (#{pno}, #{id}, #{cno}, #{gno}, #{deliveryCode})
+	</insert>
+	
+	<select id="plist" resultType="PurBoardDTO">
+		select * from purchase_board
+	</select>
+
+	
+</mapper>
+
